@@ -14,5 +14,3 @@ parser.add_argument('-l', '--load', help='Set the load path for loading pre-trai
 parser.add_argument('image_path', help='The folder to load images from, required.')
 
 parser.parse_args()
-
-
