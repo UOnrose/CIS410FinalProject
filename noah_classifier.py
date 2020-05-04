@@ -28,7 +28,10 @@ class Noah_Classifier(Chase_Classifier):
 		# Dropouts
 		self.d10 = nn.Dropout2d(0.1)
 		self.d25 = nn.Dropout2d(0.25)
-
+	
+	def get_model_path(self):
+		return ""
+	
 	def forward(self, x):
 	'''
 	Takes an image as an argument and trains that image
@@ -40,7 +43,7 @@ class Noah_Classifier(Chase_Classifier):
 		x = F.rel(self.fc3(x))
 		x = self.fc4(x)
 
-
+"""
 	def test(self, images):
 	'''
 	Takes a list of images as an argument
@@ -104,3 +107,4 @@ class Noah_Classifier(Chase_Classifier):
         torch.save(self.state_dict(), self.path)
 
 		print('Finished Training')	
+"""
