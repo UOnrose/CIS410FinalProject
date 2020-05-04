@@ -16,9 +16,6 @@ class Noah_Classifier(Chase_Classifier):
 		# Save location for model
 		self.path = './noah_net.pth'
 
-		# Save blank model
-		torch.save(self.state_dict(), self.path)
-
 		# Linear Layers
 		self.fc1 = nn.Linear(128*3*3, 300)
 		self.fc2 = nn.Linear(300, 300)
@@ -28,6 +25,10 @@ class Noah_Classifier(Chase_Classifier):
 		# Dropouts
 		self.d10 = nn.Dropout2d(0.1)
 		self.d25 = nn.Dropout2d(0.25)
+
+		# Save blank model
+		torch.save(self.state_dict(), self.path)
+		
 
 	def forward(self, x):
 	'''
