@@ -1,5 +1,6 @@
 class Finder:
-	def __init__(dir):
+	def __init__(self,dir):
+		
 		pass
-	def search(image):
+	def search(self, image):
 		pass

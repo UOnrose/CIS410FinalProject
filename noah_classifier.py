@@ -1,4 +1,8 @@
 from chase_classifier import Chase_Classifier
+import torch
+import torch.nn as nn
+import torch.optim as optim
+
 
 class Noah_Classifier(Chase_Classifier):
 	def __init__(self):
@@ -6,7 +10,8 @@ class Noah_Classifier(Chase_Classifier):
 	Initializer for Noah_Classifier
 	creates linear layers and dropouts
 	'''
-		super(Noah_Classifier, self).__init__()
+		# Edit by Chase, added in super argument to prevent calling issues.
+		super(Noah_Classifier, self).__init__(_supered=True)
 
 		# Save location for model
 		self.path = './noah_net.pth'
