@@ -6,6 +6,8 @@ import torch.optim as optim
 import torchvision
 import torchvision.transforms as transforms
 
+import os
+
 from noah_classifier import Noah_Classifier
 from chase_classifier import Chase_Classifier
 
@@ -27,9 +29,6 @@ def main():
 	parser.add_argument('image_path', help='The folder to load images from, required.')
 
 	args = parser.parse_args()
-
-	# Print arguments for reference
-	print(args)
 
 	# Get classifier from args
 	if args.chase is 'N':
@@ -53,7 +52,7 @@ def main():
 	# TODO use kaggle dataset rather than CIFAR-10
 	classes = ('plane', 'car', 'bird', 'cat',
            'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
-	
+
 	transform = transforms.Compose([
 		transforms.ToTensor(),
 		transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
@@ -63,17 +62,16 @@ def main():
 	data_loader = torch.utils.data.DataLoader(data_set, batch_size=4,
                                           shuffle=True, num_workers=2)
 
-	# Load model
-	'''
-	try: 
-		net.load_state_dict(torch.load(load + net.get_model_path()))
-	except FileNotFoundError:
-		pass
-	'''
 
 	### No RoI Section ###
 	# Training no RoI
 	if args.train is 'TRAIN':
+		# Load model
+		os.chdir(load)
+		try: 
+			net.load_state_dict(torch.load(net.get_model_path()))
+		except FileNotFoundError:
+			pass
 		print("Training classifiers")
 
 		# Define loss and optimizer
@@ -86,7 +84,6 @@ def main():
 			for i, data in enumerate(data_loader, 0):
 				# get the inputs; data is a list of [inputs, labels]
 				inputs, labels = data
-
 
 				# zero the parameter gradients
 				optimizer.zero_grad()
@@ -106,15 +103,18 @@ def main():
 
 		print('Finished Training')
 		# Save Model
-		torch.save(net.state_dict(), save + net.get_model_path())
+		os.chdir(save)
+		torch.save(net.state_dict(), net.get_model_path())
 		print("Model saved")
+
 
 	# TODO Testing no RoI
 	if args.train is 'TEST':
 		print("Testing classifiers")
 
 		# Load model
-		net.load_state_dict(torch.load(load + net.get_model_path()))
+		os.chdir(load)
+		net.load_state_dict(torch.load(net.get_model_path()))
 
 		dataiter = iter(data_loader)
 		images, labels = dataiter.next()
