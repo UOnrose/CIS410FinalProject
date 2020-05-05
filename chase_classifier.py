@@ -18,7 +18,6 @@ class Chase_Classifier(nn.Module):
         self.conv2 = nn.Conv2d(128,128, 3, stride=2)
         self.fc = nn.Linear(128*15*15, 10)
         self.last_cnn_size = 128*15*15
-		
     def forward(self, x):
         x = F.relu(self.conv1(x))
         for i in self.blocks:
@@ -27,7 +26,6 @@ class Chase_Classifier(nn.Module):
         x = F.relu(self.conv2(x))
         x = x.view(-1,self.last_cnn_size)
         x = self.fc(x)
-        return x
-	
+        return x     
 	def get_model_path(self):
 		return ""
