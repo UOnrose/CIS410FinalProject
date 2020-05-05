@@ -1,13 +1,14 @@
 import torch
 import torch.nn as nn
 import torch.optim as optim
+import torch.nn.functional as F
 
 
 class Chase_Classifier(nn.Module):
 	def __init__(self, _supered=False):
 		super(Chase_Classifier, self).__init__()
 		if _supered:
-			return __init__(self)
+			return
         # Assumes a 128x128 input
 		self.conv1 = nn.Conv2d(3, 64, 6, stride=2)
 		self.FPL = nn.MaxPool2d(2)
@@ -29,4 +30,4 @@ class Chase_Classifier(nn.Module):
 		return x
 	
 	def get_model_path(self):
-		return ""
+		return "./chase_net.pth"
