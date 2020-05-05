@@ -6,15 +6,12 @@ import torch.optim as optim
 
 class Noah_Classifier(Chase_Classifier):
 	def __init__(self):
-	'''
-	Initializer for Noah_Classifier
-	creates linear layers and dropouts
-	'''
+		'''
+		Initializer for Noah_Classifier
+		creates linear layers and dropouts
+		'''
 		# Edit by Chase, added in super argument to prevent calling issues.
 		super(Noah_Classifier, self).__init__(_supered=True)
-
-		# Save location for model
-		self.path = './noah_net.pth'
 
 		# Linear Layers
 		self.fc1 = nn.Linear(128*3*3, 300)
@@ -27,12 +24,12 @@ class Noah_Classifier(Chase_Classifier):
 		self.d25 = nn.Dropout2d(0.25)
 
 	def get_model_path(self):
-		return ""
+		return "./noah_net.pth"
 
 	def forward(self, x):
-	'''
-	Takes an image as an argument and trains that image
-	'''
+		'''
+		Takes an image as an argument and trains that image
+		'''
 		x = F.relu(self.fc1(x))
 		x = self.d25(x)
 		x = F.relu(self.fc2(x))
