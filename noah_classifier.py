@@ -2,6 +2,7 @@ from chase_classifier import Chase_Classifier
 import torch
 import torch.nn as nn
 import torch.optim as optim
+import torch.nn.functional as F
 
 
 class Noah_Classifier(Chase_Classifier):
@@ -14,10 +15,10 @@ class Noah_Classifier(Chase_Classifier):
 		super(Noah_Classifier, self).__init__(_supered=True)
 
 		# Linear Layers
-		self.fc1 = nn.Linear(128*3*3, 300)
-		self.fc2 = nn.Linear(300, 300)
-		self.fc3 = nn.Linear(300, 300)
-		self.fc4 = nn.Linear(300, 200)
+		self.fc1 = nn.Linear(32*32*3, 64) # Add false as third arg if no bias
+		self.fc2 = nn.Linear(64,64)
+		self.fc3 = nn.Linear(64,64)
+		self.fc4 = nn.Linear(64,10)
 
 		# Dropouts
 		self.d10 = nn.Dropout2d(0.1)
@@ -30,12 +31,14 @@ class Noah_Classifier(Chase_Classifier):
 		'''
 		Takes an image as an argument and trains that image
 		'''
+		x = x.view(-1, 32*32*3)
 		x = F.relu(self.fc1(x))
 		x = self.d25(x)
 		x = F.relu(self.fc2(x))
 		x = self.d10(x)
-		x = F.rel(self.fc3(x))
+		x = F.relu(self.fc2(x))
 		x = self.fc4(x)
+		return x
 
 """
 	def test(self, images):
@@ -61,44 +64,4 @@ class Noah_Classifier(Chase_Classifier):
 			labels.append(classes[predicted[i]])
 
 		return labels
-
-
-	def train(self, images, labels):
-	'''
-	Takes a list of images and their labels as arguments
-	Trains with those images
-	'''
-		# Load model
-		self.load_state_dict(torch.load(self.path))
-
-		criterion = nn.CrossEntropyLoss()
-		optimizer = optim.SGD(self.parameters(), lr=0.001, momentum=0.9)
-
-		# Train with given images
-		for epoch in range(2): # Loop over dataset twice
-			running_loss = 0.0
-			for i in range(len(images)):
-				img = images[i]
-				label = labels[i]
-
-				# zero the parameter gradients
-		        optimizer.zero_grad()
-
-		        # forward + backward + optimize
-		        output = self(img)
-		        loss = criterion(output, label)
-		        loss.backward()
-		        optimizer.step()
-
-		        # print statistics
-		        running_loss += loss.item()
-		        if i % 2000 == 1999:    # print every 2000 mini-batches
-		            print('[%d, %5d] loss: %.3f' %
-		                  (epoch + 1, i + 1, running_loss / 2000))
-		            running_loss = 0.0
-
-        # Save new model
-        torch.save(self.state_dict(), self.path)
-
-		print('Finished Training')
 """
