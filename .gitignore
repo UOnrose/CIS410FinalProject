@@ -1,2 +1,5 @@
-/images
+/images/**/*.png
+/images/**/*.jpg
+/images/Batches
+/images/*.json
 

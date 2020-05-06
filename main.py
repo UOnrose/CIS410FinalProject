@@ -11,8 +11,16 @@ import os
 from noah_classifier import Noah_Classifier
 from chase_classifier import Chase_Classifier
 
-
-
+import PIL
+from PIL import Image
+def sliceImage(image, bbox,targSize=(128,128)):
+	# Image is assumed 
+	# BBox assumed to be Left, Top, Right, Bottom
+	# But fractional to the image size...
+	# Returns a tensor
+	(w,h) = Img.size
+	return transforms.ToTensor()(transforms.functional.resized_crop(image, bbox[1]*h,bbox[0]*w, h*(bbox[3]-bbox[1]), w*(bbox[2] - bbox[0]), targSize))
+	
 def main():
 	parser = argparse.ArgumentParser(description='Loads the classifiers and either trains them or tests them on an image.')
 
@@ -56,6 +64,8 @@ def main():
 	transform = transforms.Compose([
 		transforms.ToTensor(),
 		transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
+		
+	
 	data_set = torchvision.datasets.CIFAR10(root='./data', train=True,
                                         download=True, transform=transform)
 	
