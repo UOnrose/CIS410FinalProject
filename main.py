@@ -7,13 +7,16 @@ import torchvision
 import torchvision.transforms as transforms
 
 import os
-
+import json
 from noah_classifier import Noah_Classifier
 from chase_classifier import Chase_Classifier
 
-
+from custom_dataloader import StringFolder 
 import PIL
 from PIL import Image
+
+
+
 def sliceImage(image, bbox,targSize=(128,128)):
 	# Image is assumed 
 	# BBox assumed to be Left, Top, Right, Bottom
@@ -34,7 +37,7 @@ def main():
 	parser.add_argument('-r', '--roit',  action='store_const', const='ROIT', default='no', help='Train the region of interest model, takes over entire program. Default: run it in testing mode')
 	parser.add_argument('-e', '--epoch', nargs='?', const=1, default=2, help='Define how many times the trainer loops over the set. Default is twice.')
 	parser.add_argument('-i', '--image_num', nargs='?', const=1, default=20000, help='Define how many pictures the trainer will use in an iteration. Default is 20,000.')
-
+	# Add in parser argument for annotations directory...
 	parser.add_argument('-s', '--save', help='Set the save path for models being trained. Default: \'./\'') # 
 	parser.add_argument('-l', '--load', help='Set the load path for loading pre-trained models. Default: \'./\'')
 	parser.add_argument('image_path', help='The folder to load images from, required.')
@@ -67,7 +70,28 @@ def main():
 		transforms.ToTensor(),
 		transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
 	
-	data_set = torchvision.datasets.ImageFolder(root=args.image_path, transform=transform)
+	
+	
+	# TODO: Replace with argument for json locations
+	# Could also be smoother/behind an if statement if not needed.
+	with open("./images/iwildcam2020_train_annotations.json") as f:
+		annot = json.load(f)
+	with open("./images/Categories.json") as f:
+		cate = json.load(f)
+		
+		
+	print("NEAR")
+	data_set = StringFolder(root=args.image_path, image_dict = annot, categories_dict = cate)
+	print("HERE")
+	print("LEN: " + str(len(data_set)))
+	print("'RANDOM' SAMPLING:")
+	RS = [1, 14592, 312, 4152, 2222, 665]
+	for i in RS:
+		print(data_set[i])
+	return
+	#, transform=transform) # This transform will break my image cropper (as it assumed it ISN'T a tensor
+	
+	
 	
 	data_loader = torch.utils.data.DataLoader(data_set, batch_size=4,
                                           shuffle=True, num_workers=2)

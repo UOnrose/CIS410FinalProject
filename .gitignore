@@ -1,5 +1,8 @@
 /images/**/*.png
 /images/**/*.jpg
 /images/Batches
-/images/*.json
-
+/images/iwildcam2020_megadetector_results.json
+/images/iwildcam2020_test_information.json
+/images/iwildcam2020_train_annotations.json
+**/*.pyc
+*.pyc
