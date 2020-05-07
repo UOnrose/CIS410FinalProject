@@ -1,0 +1,5 @@
+argparse with numerical value:
+https://stackoverflow.com/questions/15301147/python-argparse-default-value-or-specified-value
+
+Changing directory for saving models
+https://www.geeksforgeeks.org/python-os-chdir-method/
