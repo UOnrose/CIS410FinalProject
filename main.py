@@ -22,7 +22,7 @@ def sliceImage(image, bbox,targSize=(128,128)):
 	# BBox assumed to be Left, Top, Right, Bottom
 	# But fractional to the image size...
 	# Returns a tensor
-	print(image.size())
+	# print(image.size())
 	d,w,h = image.size() # :|
 	
 	return transforms.ToTensor()(transforms.functional.resized_crop(transforms.ToPILImage()(image), bbox[1]*h,bbox[0]*w, h*(bbox[3]-bbox[1]), w*(bbox[2] - bbox[0]), targSize))
@@ -38,7 +38,7 @@ def main():
 	parser.add_argument('-t','--train', action='store_const', const='TRAIN', default='TEST',help='Train the CLASSIFIERS   Default: run classifiers in testing mode')
 	parser.add_argument('-r', '--roit',  action='store_const', const='ROIT', default='no', help='Train the region of interest model, takes over entire program. Default: run it in testing mode')
 	parser.add_argument('-e', '--epoch', nargs='?', const=1, default=2, help='Define how many times the trainer loops over the set. Default is twice.')
-	parser.add_argument('-i', '--image_num', nargs='?', const=1, default=20000, help='Define how many pictures the trainer will use in an iteration. Default is 20,000.')
+	parser.add_argument('-n', '--image_num', nargs='?', const=1, default=20000, help='Define how many pictures the trainer will use in an iteration. Default is 20,000.')
 	# Add in parser argument for annotations directory...
 	parser.add_argument('-s', '--save', help='Set the save path for models being trained. Default: \'./\'') # 
 	parser.add_argument('-l', '--load', help='Set the load path for loading pre-trained models. Default: \'./\'')
