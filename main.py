@@ -32,7 +32,8 @@ def main():
 	parser.add_argument('-g', '--ground', action='store_const', const='G', default='O', help='Use the ground truth calculation as a RoI finder. Default Use our finder')
 	parser.add_argument('-t','--train', action='store_const', const='TRAIN', default='TEST',help='Train the CLASSIFIERS   Default: run classifiers in testing mode')
 	parser.add_argument('-r', '--roit',  action='store_const', const='ROIT', default='no', help='Train the region of interest model, takes over entire program. Default: run it in testing mode')
-	parser.add_argument('-e', '--epoch', nargs='?', const=1, default=2, help='Define how many times the trainer loops over the set. Default is twice')
+	parser.add_argument('-e', '--epoch', nargs='?', const=1, default=2, help='Define how many times the trainer loops over the set. Default is twice.')
+	parser.add_argument('-i', '--image_num', nargs='?', const=1, default=20000, help='Define how many pictures the trainer will use in an iteration. Default is 20,000.')
 
 	parser.add_argument('-s', '--save', help='Set the save path for models being trained. Default: \'./\'') # 
 	parser.add_argument('-l', '--load', help='Set the load path for loading pre-trained models. Default: \'./\'')
@@ -89,10 +90,17 @@ def main():
 
 		for epoch in range(int(args.epoch)):
 			running_loss = 0.0
-			
+			image_count = 0
+
 			for i, data in enumerate(data_loader, 0):
+				# max number of images trained
+				if image_count > args.image_num:
+					break
+
 				# get the inputs; data is a list of [inputs, labels]
 				inputs, labels = data
+
+				inputs = sliceImage(inputs, [0, 0, inputs.width, inputs.height])
 
 				# zero the parameter gradients
 				optimizer.zero_grad()
@@ -109,6 +117,9 @@ def main():
 					print('[%d, %5d] loss: %.3f' %
 						(epoch + 1, i + 1, running_loss / 2000))
 					running_loss = 0.0
+
+				# Keep track of amount of images trained
+				image_count += 1
 
 		print('Finished Training')
 		# Save Model

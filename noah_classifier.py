@@ -15,7 +15,7 @@ class Noah_Classifier(Chase_Classifier):
 		super(Noah_Classifier, self).__init__(_supered=True)
 
 		# Linear Layers
-		self.fc1 = nn.Linear(32*32*3, 64) # Add false as third arg if no bias
+		self.fc1 = nn.Linear(128*128*3, 64) # Add false as third arg if no bias
 		self.fc2 = nn.Linear(64,64)
 		self.fc3 = nn.Linear(64,64)
 		self.fc4 = nn.Linear(64,10)
@@ -31,7 +31,7 @@ class Noah_Classifier(Chase_Classifier):
 		'''
 		Takes an image as an argument and trains that image
 		'''
-		x = x.view(-1, 32*32*3)
+		x = x.view(-1, 128*128*3)
 		x = F.relu(self.fc1(x))
 		x = self.d25(x)
 		x = F.relu(self.fc2(x))
