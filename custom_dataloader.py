@@ -13,7 +13,7 @@ def pil_loader(path):
 		img = Image.open(f)
 		return img.convert('RGB')
 class StringFolder(VisionDataset):
-	def __init__(self, root, image_dict, categories_dict, is_valid_file=None):
+	def __init__(self, root, image_dict, categories_dict,rescaling_size = (800,600), is_valid_file=None):
 		# Much cheaper than scanning a directory (old HDD) but assumes that all files are valid...
 		# Assumptions:
 		#	Categories_dict is in the format {"CAT_UUID": {"id":CAT_UUID, "name":"NAME", "count":NUM},...} 
@@ -23,11 +23,12 @@ class StringFolder(VisionDataset):
 		#         Categories_dict === json.load(Categories.json)
 		# Where the json.load function is the standard load function.
 		# root is where the files actually live.
+		# Rescale all images to X before passing them on...
 		
 		super(StringFolder, self).__init__("",transform=None, target_transform=None)
 		
 		classes, class_to_idx, idx_to_class, idx_to_name = self._find_classes(categories_dict)
-		
+		self.resize_size = rescaling_size
 		samples = self._make_dataset(root, image_dict, class_to_idx, is_valid_file)
 		self.loader = pil_loader
 		self.classes = classes
@@ -71,6 +72,7 @@ class StringFolder(VisionDataset):
 	def __getitem__(self, index):
 		path, target, id = self.samples[index]
 		sample = self.loader(path)
-		return sample,target,id
+		sample = sample.resize(self.resize_size)
+		return transforms.ToTensor()(sample),target,id
 	def __len__(self):
 		return self.lensamples

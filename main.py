@@ -22,8 +22,10 @@ def sliceImage(image, bbox,targSize=(128,128)):
 	# BBox assumed to be Left, Top, Right, Bottom
 	# But fractional to the image size...
 	# Returns a tensor
-	(w,h) = Img.size
-	return transforms.ToTensor()(transforms.functional.resized_crop(image, bbox[1]*h,bbox[0]*w, h*(bbox[3]-bbox[1]), w*(bbox[2] - bbox[0]), targSize))
+	print(image.size())
+	d,w,h = image.size() # :|
+	
+	return transforms.ToTensor()(transforms.functional.resized_crop(transforms.ToPILImage()(image), bbox[1]*h,bbox[0]*w, h*(bbox[3]-bbox[1]), w*(bbox[2] - bbox[0]), targSize))
 
 
 def main():
@@ -79,16 +81,8 @@ def main():
 	with open("./images/Categories.json") as f:
 		cate = json.load(f)
 		
-		
-	print("NEAR")
 	data_set = StringFolder(root=args.image_path, image_dict = annot, categories_dict = cate)
-	print("HERE")
-	print("LEN: " + str(len(data_set)))
-	print("'RANDOM' SAMPLING:")
-	RS = [1, 14592, 312, 4152, 2222, 665]
-	for i in RS:
-		print(data_set[i])
-	return
+	
 	#, transform=transform) # This transform will break my image cropper (as it assumed it ISN'T a tensor
 	
 	
@@ -122,10 +116,14 @@ def main():
 					break
 
 				# get the inputs; data is a list of [inputs, labels]
-				inputs, labels = data
-
-				inputs = sliceImage(inputs, [0, 0, inputs.width, inputs.height])
-
+				inputs, labels, ids = data
+				# TODO ADD IN THE TOOL THAT GETS THE BBOX OF ALL THE IMAGES!
+				# NOTE THAT THIS CAN'T BE PARALLIZED EASILY! WE WILL NEED A FORLOOP
+				ii = sliceImage(inputs[0], [0, 0, .5,.5])
+				print(inputs)
+				print(ii)
+				# XXX
+				return inputs
 				# zero the parameter gradients
 				optimizer.zero_grad()
 
@@ -161,8 +159,14 @@ def main():
 		net.load_state_dict(torch.load(net.get_model_path()))
 
 		dataiter = iter(data_loader)
-		images, labels = dataiter.next()
-
+		images, labels,ids = dataiter.next()
+		# TODO ADD IN THE TOOL THAT GETS THE BBOX OF ALL THE IMAGES!
+		# NOTE THAT THIS CAN'T BE PARALLIZED EASILY! WE WILL NEED A FORLOOP
+		ii = sliceImage(inputs[0], [0, 0, .5,.5])
+		print(inputs)
+		print(ii)
+		# XXX
+		return inputs
 		# Compare with images
 		outputs = net(images)
 
@@ -192,4 +196,4 @@ def main():
 
 
 if __name__ == '__main__':
-	main()
+	_temp = main()
