@@ -13,7 +13,7 @@ def pil_loader(path):
 		img = Image.open(f)
 		return img.convert('RGB')
 class StringFolder(VisionDataset):
-	def __init__(self, root, image_dict, categories_dict,rescaling_size = (800,600), is_valid_file=None):
+	def __init__(self, root, image_dict, categories_dict,transform=None,rescaling_size = (800,600), is_valid_file=None):
 		# Much cheaper than scanning a directory (old HDD) but assumes that all files are valid...
 		# Assumptions:
 		#	Categories_dict is in the format {"CAT_UUID": {"id":CAT_UUID, "name":"NAME", "count":NUM},...} 
@@ -25,8 +25,8 @@ class StringFolder(VisionDataset):
 		# root is where the files actually live.
 		# Rescale all images to X before passing them on...
 		
-		super(StringFolder, self).__init__("",transform=None, target_transform=None)
-		
+		super(StringFolder, self).__init__("",transform=transform, target_transform=None)
+		self.transform = transform
 		classes, class_to_idx, idx_to_class, idx_to_name = self._find_classes(categories_dict)
 		self.resize_size = rescaling_size
 		samples = self._make_dataset(root, image_dict, class_to_idx, is_valid_file)
@@ -73,6 +73,8 @@ class StringFolder(VisionDataset):
 		path, target, id = self.samples[index]
 		sample = self.loader(path)
 		sample = sample.resize(self.resize_size)
-		return transforms.ToTensor()(sample),target,id
+		if self.transform is not None:
+			sample = self.transform(sample)
+		return sample,target,id
 	def __len__(self):
 		return self.lensamples

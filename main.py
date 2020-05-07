@@ -81,7 +81,7 @@ def main():
 	with open("./images/Categories.json") as f:
 		cate = json.load(f)
 		
-	data_set = StringFolder(root=args.image_path, image_dict = annot, categories_dict = cate)
+	data_set = StringFolder(root=args.image_path, image_dict = annot, categories_dict = cate, transform=transform)
 	
 	#, transform=transform) # This transform will break my image cropper (as it assumed it ISN'T a tensor
 	
