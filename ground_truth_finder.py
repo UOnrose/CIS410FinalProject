@@ -1,8 +1,9 @@
 import json
+import os
 class GTFinder():
 	def __init__(self,dir):
 		# The idea is that we will load up the json file, wait for us to find the image, and call it a day...
-		with open(dir + "iwildcam2020_megadetector_results.json") as f:
+		with open(os.path.join(dir,"iwildcam2020_megadetector_results.json")) as f:
 			jsonfile = json.load(f)
 		self.img_id_lookup = {}
 		for val in jsonfile["images"]:
@@ -23,8 +24,10 @@ class GTFinder():
 			img_i = img_ids[id]
 			img_w = len(images[id][0][0])
 			img_h = len(images[id][0])
-			if img_id in self.img_id_lookup[img_i]:
-				bboxes[id].append(([img_id["bbox"][0] * img_w, img_id["bbox"][1]*img_h, 
-				(img_id["bbox"][2]+img_id["bbox"][0])*img_w, img_h*(img_id["bbox"][1] + img_id["bbox"][3])],
-				img_id["conf"]))
+			if img_i in self.img_id_lookup:
+				dets = self.img_id_lookup[img_i]
+				for img_id in dets:
+					bboxes[id].append(([img_id["bbox"][0] * img_w, img_id["bbox"][1]*img_h, 
+					(img_id["bbox"][2]+img_id["bbox"][0])*img_w, img_h*(img_id["bbox"][1] + img_id["bbox"][3])],
+					img_id["conf"]))
 		return bboxes

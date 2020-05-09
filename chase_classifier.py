@@ -35,6 +35,6 @@ class Chase_Classifier(nn.Module):
 		x = F.relu(self.conv2(x))
 		x = x.view(-1,self.last_cnn_size)
 		x = self.fc(x)
-		return x
+		return nn.LogSoftmax()(x)
 	def get_model_path(self):
 		return "./chase_net.pth"
