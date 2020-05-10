@@ -166,10 +166,12 @@ def main():
                 #image, bbox,
                 cboxes = [] # Idea is that this is a set of tuples, each item in tuple as an input to be mapped over sliceImage
                 clabels = []
-                for i in range(len(inputs)):
-                    cboxes.extend(product([inputs[i]], [j[0] for j in bboxes[i]]))
-                    clabels.extend([labels[i] for k in range(len(bboxes[i]))])
-                
+                for kk in range(len(inputs)):
+                    cboxes.extend(product([inputs[kk]], [j[0] for j in bboxes[kk]]))
+                    clabels.extend([labels[kk] for k in range(len(bboxes[kk]))])
+                if len(clabels) == 0:
+                    print("The amount of labels in the list are zero. This means we got unlucky with our draw and to continue to the next set.")
+                    continue 
                 clabels = torch.from_numpy(np.asarray(clabels))
                 # pool.starmap...
                 results_temp = list(pool.starmap(sliceImage, cboxes))  # :)
