@@ -19,6 +19,13 @@ from scipy import interpolate
 import multiprocessing
 from itertools import product, starmap
 from ground_truth_finder import GTFinder
+import matplotlib.pyplot as plt
+
+DEBUGGING_MODE_ON = False
+
+def debug_logging(*args):
+    if DEBUGGING_MODE_ON:
+        print('[DEBUG: ]',*args)
 
 
 ## This is from https://gist.github.com/J535D165/a2ac7f27ad6ddd6ee85e7d30e9f4080e
@@ -28,25 +35,27 @@ from ground_truth_finder import GTFinder
 # This will resize it based on the above implementation. NOTE that the above does not support things like fractional cropping, and has some other issues regarding lengths.
 # Also edited to support color channels :D
 def crop_and_resample(arr, color_chan, x_crop, y_crop, new_size):
-    NXC = list(map(int,[np.floor(x_crop[0]), np.ceil(x_crop[1])]))
-    NYC = list(map(int,[np.floor(y_crop[0]), np.ceil(y_crop[1])]))
-    len_x_crop = NXC[1] - NXC[0]
-    len_y_crop = NYC[1] - NYC[0]
-    npx = np.linspace((x_crop[0] - NXC[0])/len_x_crop, 
-        1.0 - ((NXC[1] - x_crop[1])/len_x_crop),
-        new_size[0])
-    npy = np.linspace((y_crop[0] - NYC[0])/len_y_crop, 
-        1.0 - ((NYC[1] - y_crop[1])/len_y_crop),
-        new_size[1])
+    d,h,w = arr.shape
+    # Here is the idea, take the min/max of the bounds +- 50 and the actual bounds of the array. This will allow for us NOT to interpolate over the whole image but still not get weird 1px wide images.
+    # Sort for good measure.
+    x_crop.sort()
+    y_crop.sort()
+    x_left = int(max(0,x_crop[0]-50))
+    x_right = int(min(w-1, x_crop[1]+50))
+    y_top = int(max(0,y_crop[0]-50))
+    y_bottom = int(min(h-1, y_crop[1]+50))
+    x_dist = x_right - x_left + 1
+    y_dist = y_bottom - y_top + 1
+    debug_logging("Crop and Resample: ","[",x_left, x_right, y_top,y_bottom,"]", w,h, x_crop, y_crop)
+    npx = np.linspace(float(x_crop[0] - x_left),x_dist-1 - (float(x_right - x_crop[1])),new_size[0])
+    npy = np.linspace(float(y_crop[0] - y_top),y_dist-1 - float(y_bottom - y_crop[1]),new_size[1])
     out = np.zeros((color_chan, new_size[1],new_size[0]))
     for i in range(color_chan):
-        arr_crop = arr[i, NYC[0]:NYC[1], NXC[0]:NXC[1]]
-        f = interpolate.RectBivariateSpline(np.arange(len_y_crop), 
-                                 np.arange(len_x_crop), 
-                                 arr_crop,kx=1,ky=1)
+        f = interpolate.RectBivariateSpline(np.arange(y_dist), 
+                                 np.arange(x_dist), 
+                                 arr[i,y_top:y_bottom+1,x_left:x_right+1],kx=1,ky=1)
         out[i,:,:] = f(npy,npx)
     return out
-
 
 def sliceImage(image, bbox,targSize=(128,128)):
     # Image is assumed 
@@ -71,6 +80,7 @@ def main():
     parser.add_argument('-r', '--roit',  action='store_const', const='ROIT', default='no', help='Train the region of interest model, takes over entire program. Default: run it in testing mode')
     parser.add_argument('-e', '--epoch', nargs='?', const=1, default=2, help='Define how many times the trainer loops over the set. Default is twice.')
     parser.add_argument('-n', '--image_num', nargs='?', const=1, default=20000, help='Define how many pictures the trainer will use in an iteration. Default is 20,000.')
+    parser.add_argument('-d','--debug', action='store_const', const='DEBUG', default='', help='Enables debug logging.')
     # Add in parser argument for annotations directory...
     parser.add_argument('-s', '--save', help='Set the save path for models being trained. Default: \'./\'') # 
     parser.add_argument('-l', '--load', help='Set the load path for loading pre-trained models. Default: \'./\'')
@@ -78,7 +88,8 @@ def main():
     parser.add_argument('--resume',action='store_const', const='Y',default='N', help='The models being loaded have been trained partially on this dataset and thus they should be modified before loading weights. Omitting this will assume the models were trained on another dataset and thus the last layer\'s weights will be dropped.')
 
     args = parser.parse_args()
-
+    if args.debug is 'DEBUG':
+        DEBUGGING_MODE_ON = True
     # Get classifier from args
     
 
@@ -127,7 +138,7 @@ def main():
     regionProposer = GTFinder(dir = './images/')
     
     data_loader = torch.utils.data.DataLoader(data_set, batch_size=4,
-                                          shuffle=True, num_workers=2)
+                                          shuffle=True, num_workers=4)
 
     pool = multiprocessing.Pool()
     ### No RoI Section ###
@@ -170,11 +181,11 @@ def main():
                     cboxes.extend(product([inputs[kk]], [j[0] for j in bboxes[kk]]))
                     clabels.extend([labels[kk] for k in range(len(bboxes[kk]))])
                 if len(clabels) == 0:
-                    print("The amount of labels in the list are zero. This means we got unlucky with our draw and to continue to the next set.")
+                    debug_logging("The amount of labels in the list are zero. This means we got unlucky with our draw and to continue to the next set.")
                     continue 
                 clabels = torch.from_numpy(np.asarray(clabels))
-                # pool.starmap...
-                results_temp = list(pool.starmap(sliceImage, cboxes))  # :)
+                # If multiprocessing wasn't haven't a heart attack, I would do that to be faster...only better if more multiprocessing
+                results_temp = list(starmap(sliceImage, cboxes))  
                 results = torch.zeros([len(results_temp), 3,128,128],dtype=torch.float)
                 for i in range(len(results_temp)):
                     results[i,:,:,:] = results_temp[i]
