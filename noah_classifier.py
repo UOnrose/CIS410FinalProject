@@ -16,9 +16,9 @@ class Noah_Classifier(Chase_Classifier):
 
 		# Linear Layers
 		self.fc1 = nn.Linear(128*128*3, 64) # Add false as third arg if no bias
-		self.fc2 = nn.Linear(64,64)
-		self.fc3 = nn.Linear(64,64)
-		self.fc4 = nn.Linear(64,10)
+		self.fc2 = nn.Linear(300,300)
+		self.fc3 = nn.Linear(300,300)
+		self.fc4 = nn.Linear(300,267)
 
 		# Dropouts
 		self.d10 = nn.Dropout2d(0.1)

@@ -165,7 +165,7 @@ def main():
 
             for i, data in enumerate(data_loader, 0):
                 # max number of images trained
-                if image_count > args.image_num:
+                if image_count > int(args.image_num):
                     break
 
                 # get the inputs; data is a list of [inputs, labels]
