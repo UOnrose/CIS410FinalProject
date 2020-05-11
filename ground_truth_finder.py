@@ -21,6 +21,8 @@ class GTFinder():
 		# The height is the length of the second index. (so ID,Channel,Row,Col)
 		bboxes = [[] for i in range(len(img_ids))]
 		for id in range(len(img_ids)):
+			if images[id] == None:
+				continue
 			img_i = img_ids[id]
 			img_w = len(images[id][0][0])
 			img_h = len(images[id][0])
