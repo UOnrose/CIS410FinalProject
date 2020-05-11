@@ -15,7 +15,7 @@ class Noah_Classifier(Chase_Classifier):
 		super(Noah_Classifier, self).__init__(_supered=True)
 
 		# Linear Layers
-		self.fc1 = nn.Linear(128*128*3, 64) # Add false as third arg if no bias
+		self.fc1 = nn.Linear(128*128*3, 300) # Add false as third arg if no bias
 		self.fc2 = nn.Linear(300,300)
 		self.fc3 = nn.Linear(300,300)
 		self.fc4 = nn.Linear(300,267)
